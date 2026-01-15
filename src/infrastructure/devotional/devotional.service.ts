@@ -1,18 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { DevotionalRepository } from '../../domain/devotional.repository';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Devotional } from 'src/domain/devotional.entity';
-import * as fs from 'fs';
+import { FirestoreDevotionalRepository } from '../firestore/firestore.respository';
 
 @Injectable()
-export class DevotionalService implements DevotionalRepository {
-  async getTodayDevotional(): Promise<Devotional> {
-    const images = fs.readdirSync('devotionals');
-    const image = images[Math.floor(Math.random() * images.length)];
+export class DevotionalService {
+  constructor(
+    @Inject('FirestoreDevotionalRepository')
+    private readonly repository: FirestoreDevotionalRepository,
+  ) {}
 
-    return new Devotional(
-      `devotionals/${image}`,
-      'Automated Testing Daily Devotional',
-      'Today is the day the Lord has made',
+  private readonly logger = new Logger(DevotionalService.name);
+  private readonly today = new Date();
+
+  async getTodayDevotional(): Promise<Devotional> {
+    const devotional = await this.repository.findDevotionalByDate(
+      this.today.toString(),
     );
+    /*const images = fs.readdirSync('devotionals');
+    const image = images[Math.floor(Math.random() * images.length)];*/
+
+    return new Devotional(devotional.imagePath, this.today.toString());
   }
 }

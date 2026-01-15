@@ -1,7 +1,6 @@
 export class Devotional {
   constructor(
     public readonly imagePath: string,
-    public readonly caption: string,
-    public readonly textBody: string,
+    public readonly date: string,
   ) {}
 }
