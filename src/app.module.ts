@@ -3,13 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WhatsappModule } from './infrastructure/whatsapp/whatsapp.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SendDailyDevotionalUseCase } from './application/usecases/send-daily-devotional.usecase';
+import { SendDailyDevotionalUseCase } from './application/devotional/usecases/send-daily-devotional.usecase';
 import { DevotionalScheduler } from './scheduler/devotional.scheduler';
 import { ConfigModule } from '@nestjs/config';
 import { AiModule } from './infrastructure/ai/ai.module';
 import { FirestoreDevotionalRepository } from './infrastructure/firestore/firestore.respository';
 import { FirestoreModule } from './infrastructure/firestore/firestore.module';
 import { HttpModule } from '@nestjs/axios';
+import { CronController } from './presentation/http/cron/cron.controller';
+import { CronModule } from './presentation/http/cron/cron.module';
+import { DevotionalModule } from './application/devotional.module';
 
 @Module({
   imports: [
@@ -18,9 +21,11 @@ import { HttpModule } from '@nestjs/axios';
     ScheduleModule.forRoot(),
     HttpModule,
     AiModule,
-    FirestoreModule, // GeminiService lives here
+    FirestoreModule,
+    CronModule,
+    DevotionalModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CronController],
   providers: [
     AppService,
     FirestoreDevotionalRepository,

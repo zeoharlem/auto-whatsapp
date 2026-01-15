@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Devotional } from 'src/domain/devotional.entity';
+import { Devotional } from 'src/domain/devotional/devotional.entity';
 import { FirestoreDevotionalRepository } from '../firestore/firestore.respository';
 
 @Injectable()
@@ -16,9 +16,6 @@ export class DevotionalService {
     const devotional = await this.repository.findDevotionalByDate(
       this.today.toString(),
     );
-    /*const images = fs.readdirSync('devotionals');
-    const image = images[Math.floor(Math.random() * images.length)];*/
-
     return new Devotional(devotional.imagePath, this.today.toString());
   }
 }

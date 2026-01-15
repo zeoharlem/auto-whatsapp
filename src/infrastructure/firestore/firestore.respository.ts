@@ -1,5 +1,5 @@
-import { DevotionalRepository } from '../../domain/devotional.repository';
-import { Devotional } from '../../domain/devotional.entity';
+import { DevotionalRepository } from '../../domain/devotional/devotional.repository';
+import { Devotional } from '../../domain/devotional/devotional.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { firestore } from 'firebase-admin';
 import Firestore = firestore.Firestore;
