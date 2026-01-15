@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { DevotionalModel } from '../../domain/models/devotional.model';
-import { DevotionalAiPort } from '../../infrastructure/ai/ports/devotional-ai.port';
+import { DevotionalModel } from '../../../domain/devotional/models/devotional.model';
+import { DevotionalAiPort } from '../ports/devotional-ai.port';
 
 @Injectable()
 export class ExtractDevotionalTextUseCase {

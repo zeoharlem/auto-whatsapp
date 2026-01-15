@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
-import { DevotionalModel } from '../../domain/models/devotional.model';
-import { DevotionalAiPort } from './ports/devotional-ai.port';
+import { DevotionalModel } from '../../../domain/devotional/models/devotional.model';
+import { DevotionalAiPort } from '../../../application/devotional/ports/devotional-ai.port';
 
 //import * as fs from 'fs';
 

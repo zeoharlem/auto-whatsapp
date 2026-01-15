@@ -1,6 +1,6 @@
-import { DevotionalRepository } from '../../domain/devotional.repository';
+import { DevotionalRepository } from '../../../domain/devotional/devotional.repository';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { WhatsappService } from '../../infrastructure/whatsapp/whatsapp.service';
+import { WhatsappService } from '../../../infrastructure/whatsapp/whatsapp.service';
 import { ExtractDevotionalTextUseCase } from './extract-devotional-text.usecase';
 import * as fs from 'fs';
 import * as path from 'path';

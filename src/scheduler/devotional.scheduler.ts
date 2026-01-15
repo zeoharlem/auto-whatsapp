@@ -1,4 +1,4 @@
-import { SendDailyDevotionalUseCase } from '../application/usecases/send-daily-devotional.usecase';
+import { SendDailyDevotionalUseCase } from '../application/devotional/usecases/send-daily-devotional.usecase';
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 

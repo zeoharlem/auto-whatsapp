@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
-import { DevotionalAiPort } from '../ports/devotional-ai.port';
+import { DevotionalAiPort } from '../../../application/devotional/ports/devotional-ai.port';
 import { Injectable } from '@nestjs/common';
-import { DevotionalModel } from 'src/domain/models/devotional.model';
+import { DevotionalModel } from 'src/domain/devotional/models/devotional.model';
 
 @Injectable()
 export class OpenAiDevotionalAdapter implements DevotionalAiPort {
