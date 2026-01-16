@@ -3,18 +3,6 @@ import { AppModule } from '../src/app.module';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 
-/*
-let server;
-export default async function handler(req, res) {
-  if (!server) {
-    const app = await NestFactory.create(AppModule);
-    await app.init();
-    server = app.getHttpAdapter().getInstance();
-  }
-
-  return server(req, res);
-}
-*/
 const server = express();
 
 export default async (req, res) => {
