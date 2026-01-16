@@ -7,6 +7,9 @@ export class CronController {
     private readonly sendDailyDevotional: SendDailyDevotionalUseCase,
   ) {}
 
+  /*
+    hit this endpoint if you are using http cronjob
+  */
   @Post('devotional')
   async handleDailyDevotional() {
     await this.sendDailyDevotional.execute();

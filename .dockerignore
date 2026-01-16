@@ -1,0 +1,14 @@
+node_modules
+dist
+npm-debug.log
+.env
+.git
+.gitignore
+.idea
+.wwebjs_auth
+README.md
+test
+*.spec.ts
+coverage
+.prettierrc
+.eslintrc.js

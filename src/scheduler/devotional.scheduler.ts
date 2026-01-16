@@ -9,7 +9,7 @@ export class DevotionalScheduler {
   ) {}
 
   /** @Cron('0 6 * * *'): 6AM cronjob **/
-  @Cron('0 6 * * *', { timeZone: 'Africa/Lagos' })
+  @Cron('0 5 * * *', { timeZone: 'Africa/Lagos' })
   async handleDailyDevotional() {
     await this.sendDailyDevotional.execute();
   }
