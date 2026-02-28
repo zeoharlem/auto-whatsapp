@@ -12,9 +12,14 @@ export class ExtractDevotionalTextUseCase {
   ) {}
 
   async execute(imageBuffer: Buffer): Promise<string> {
-    const devotional = await this.devotionalAiPort.extractDailyDevotionFromImage(imageBuffer);
-    this.logger.log(devotional, 'ExtractDevotionalTextUseCase.execute');
-    return this.formatForWhatsapp(devotional);
+    try {
+      const devotional = await this.devotionalAiPort.extractDailyDevotionFromImage(imageBuffer);
+      this.logger.log(devotional, 'ExtractDevotionalTextUseCase.execute');
+      return this.formatForWhatsapp(devotional);
+    } catch (e) {
+      this.logger.error('OpenAi-[OcrOperation]', e);
+      return `Devotional for the day: (${e.message})`;
+    }
   }
 
   private formatForWhatsapp(d: DevotionalModel): string {

@@ -19,13 +19,15 @@ export class SendDailyDevotionalUseCase {
   ) {}
 
   async execute(date?: string) {
-    const today = date ?? new Date().toISOString().split('T')[0];
-    const devotional = await this.devotionalRepo.findDevotionalByDate(today);
     let imageBuffer: Buffer | undefined;
 
-    if (!devotional) return;
-
     try {
+      await this.whatsapp.ensureReady();
+      const today = date ?? new Date().toISOString().split('T')[0];
+      const devotional = await this.devotionalRepo.findDevotionalByDate(today);
+
+      if (!devotional) return;
+
       imageBuffer = await this.downloadImageBuffer(devotional.imagePath);
       const baseCap = await this.extractDevotional.execute(imageBuffer);
 
@@ -64,6 +66,8 @@ export class SendDailyDevotionalUseCase {
     } catch (e) {
       this.logger.error('Devotional automation failed:', e);
     } finally {
+      await this.whatsapp.destroyClient();
+
       if (imageBuffer) {
         imageBuffer.fill(0);
         imageBuffer = null;
