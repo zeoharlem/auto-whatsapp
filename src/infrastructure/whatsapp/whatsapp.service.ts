@@ -1,9 +1,14 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnApplicationShutdown,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Client, LocalAuth, MessageMedia } from 'whatsapp-web.js';
 import * as qrcode from 'qrcode-terminal';
 
 @Injectable()
-export class WhatsappService implements OnModuleInit {
+export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
   private client: Client;
   private initialized = false;
   private ready = false;
@@ -11,17 +16,30 @@ export class WhatsappService implements OnModuleInit {
   private readonly logger = new Logger(WhatsappService.name);
   private readonly MAX_RETRIES = 3;
 
-  onModuleInit() {
+  async onModuleInit() {
+    await this.initializeClient();
+  }
+
+  private async initializeClient() {
     if (this.initialized) return;
 
     this.client = new Client({
       authStrategy: new LocalAuth({
         clientId: 'auto-whatsapp-bot',
       }),
+      puppeteer: {
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--no-zygote',
+          '--single-process',
+        ],
+      },
       webVersionCache: {
-        type: 'remote',
-        remotePath:
-          'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1031992593-alpha.html',
+        type: 'local',
+        path: './.wwebjs_cache',
       },
     });
 
@@ -56,8 +74,26 @@ export class WhatsappService implements OnModuleInit {
       }
     });
 
-    this.client.initialize();
+    await this.client.initialize();
     this.initialized = true;
+  }
+
+  async ensureReady(): Promise<void> {
+    if (!this.initialized || !this.client) {
+      await this.initializeClient();
+    }
+
+    // wait until ready
+    let retries = 0;
+
+    while (!this.ready && retries < this.MAX_RETRIES) {
+      await new Promise((r) => setTimeout(r, 1000));
+      retries++;
+    }
+
+    if (!this.ready) {
+      throw new Error('WhatsApp client failed to become ready');
+    }
   }
 
   async sendSingleGroupMessage(
@@ -112,5 +148,39 @@ export class WhatsappService implements OnModuleInit {
         this.logger.error(`WhatsApp Messaging failed: ${e.message}`);
       }
     }
+  }
+
+  async destroyClient(): Promise<void> {
+    if (!this.client) return;
+
+    try {
+      this.logger.log('Destroying WhatsApp client...');
+
+      await this.client.destroy();
+
+      this.ready = false;
+      this.initialized = false;
+      this.client = null;
+
+      this.logger.log('WhatsApp client destroyed successfully');
+    } catch (err) {
+      this.logger.error('Error destroying WhatsApp client', err);
+    }
+  }
+
+  //Added to manage graceful exception/crash
+  async onApplicationShutdown(signal?: string) {
+    console.log('Shutting down WhatsApp client, signal:', signal);
+    if (this.client) {
+      try {
+        await this.client.destroy(); // closes puppeteer properly
+        console.log('WhatsApp client closed gracefully');
+      } catch (err) {
+        console.error('Error closing WhatsApp client:', err);
+      }
+    }
+
+    // Exit with 0 to avoid "crash" in logs
+    if (signal) process.exit(0);
   }
 }

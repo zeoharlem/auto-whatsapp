@@ -4,13 +4,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableShutdownHooks();
-  if (process.env.VERCEL) {
-    await app.init();
-    return;
-  }
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
+  //const port = process.env.PORT || 3000;
+  await app.listen(3000);
+  console.log(`Application running at ${await app.getUrl()}`);
 }
 
 bootstrap();
