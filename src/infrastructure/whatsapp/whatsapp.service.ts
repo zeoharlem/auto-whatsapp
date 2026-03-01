@@ -35,6 +35,9 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
           '--disable-dev-shm-usage',
           '--no-zygote',
           '--single-process',
+          '--ignore-certificate-errors',
+          '--ignore-certificate-errors-spki-list',
+          '--disable-features=CertificateTransparencyComponentUpdater',
         ],
       },
       webVersionCache: {
