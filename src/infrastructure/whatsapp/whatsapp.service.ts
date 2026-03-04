@@ -52,14 +52,22 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
 
     this.client.on('ready', async () => {
       this.logger.log('🙏 WhatsApp client ready');
-      await new Promise((r) => setTimeout(r, 5000));
       this.ready = true;
-      this.logger.log('✅ WhatsApp client fully synced and ready');
     });
 
-    this.client.on('disconnected', (reason) => {
+    /*this.client.on('disconnected', (reason) => {
       this.ready = false;
       this.logger.warn(`WhatsApp disconnected: ${reason}`);
+    });*/
+
+    this.client.on('disconnected', async (reason) => {
+      this.ready = false;
+      this.logger.warn(`WhatsApp disconnected: ${reason}`);
+
+      await this.client.destroy();
+      this.initialized = false;
+
+      setTimeout(() => this.initializeClient(), 5000);
     });
 
     this.client.on('message_ack', (msg, ack) => {
@@ -86,17 +94,24 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
       await this.initializeClient();
     }
 
-    // wait until ready
-    let retries = 0;
+    if (this.ready) return;
 
-    while (!this.ready && retries < this.MAX_RETRIES) {
-      await new Promise((r) => setTimeout(r, 1000));
-      retries++;
-    }
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('WhatsApp client failed to become ready'));
+      }, 30_000); // wait up to 30 seconds
 
-    if (!this.ready) {
-      throw new Error('WhatsApp client failed to become ready');
-    }
+      this.client.once('ready', () => {
+        clearTimeout(timeout);
+        this.ready = true;
+        resolve();
+      });
+
+      this.client.once('auth_failure', (msg) => {
+        clearTimeout(timeout);
+        reject(new Error(`Auth failure: ${msg}`));
+      });
+    });
   }
 
   async sendSingleGroupMessage(
