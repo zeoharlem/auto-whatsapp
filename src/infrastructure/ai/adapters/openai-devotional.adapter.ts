@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { OpenAI } from 'openai';
+import OpenAI from 'openai';
 import { DevotionalAiPort } from '../../../application/devotional/ports/devotional-ai.port';
 import { Injectable } from '@nestjs/common';
 import { DevotionalModel } from 'src/domain/devotional/models/devotional.model';
@@ -14,6 +14,47 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
     });
   }
 
+  /*async extractDailyDevotionFromImage(image: Buffer): Promise<DevotionalModel> {
+		 const base64Image = image.toString('base64');
+		 const prompt = `
+			Extract the text from this devotional image and return it as a JSON object.
+			Include these fields: date, topic, anchorScripture, contentBody, todo, toPray, furtherReading, and bibleInOneYear.
+			Rules:
+			- Do NOT add explanations
+			- Do NOT wrap in markdown
+			- If a field is missing in the image, return an empty string
+			- Preserve Bible references accurately
+			- Keep line breaks inside text fields where appropriate
+		 `;
+
+		 const response = await this.client.responses.create({
+			model: 'gpt-4.1-mini',
+			input: [
+			  {
+				 role: 'user',
+				 content: [
+					{
+					  type: 'input_text',
+					  text: prompt,
+					},
+					{
+					  type: 'input_image',
+					  image_url: `data:image/jpeg;base64,${base64Image}`,
+					  detail: 'auto',
+					},
+				 ],
+			  },
+			],
+		 });
+
+		 const outputText = response.output_text;
+
+		 if (!outputText) {
+			throw new Error('No output text returned from OpenAI');
+		 }
+		 return JSON.parse(outputText) as DevotionalModel;
+	  }*/
+
   async extractDailyDevotionFromImage(image: Buffer): Promise<DevotionalModel> {
     const base64Image = image.toString('base64');
     const prompt = `
@@ -27,8 +68,40 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
       - Keep line breaks inside text fields where appropriate
     `;
 
-    const response = await this.client.responses.create({
+    const response = await this.client.responses.parse({
       model: 'gpt-4.1-mini',
+
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'devotional_extraction',
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              date: { type: 'string' },
+              topic: { type: 'string' },
+              anchorScripture: { type: 'string' },
+              contentBody: { type: 'string' },
+              todo: { type: 'string' },
+              toPray: { type: 'string' },
+              furtherReading: { type: 'string' },
+              bibleInOneYear: { type: 'string' },
+            },
+            required: [
+              'date',
+              'topic',
+              'anchorScripture',
+              'contentBody',
+              'todo',
+              'toPray',
+              'furtherReading',
+              'bibleInOneYear',
+            ],
+          },
+        },
+      },
+
       input: [
         {
           role: 'user',
@@ -47,11 +120,11 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
       ],
     });
 
-    const outputText = response.output_text;
+    const outputText = response.output_parsed;
 
     if (!outputText) {
       throw new Error('No output text returned from OpenAI');
     }
-    return JSON.parse(outputText) as DevotionalModel;
+    return outputText as DevotionalModel;
   }
 }
