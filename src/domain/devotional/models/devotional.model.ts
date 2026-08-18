@@ -7,4 +7,5 @@ export interface DevotionalModel {
   toPray: string;
   furtherReading: string;
   bibleInOneYear: string;
+  declareWithMe: string;
 }

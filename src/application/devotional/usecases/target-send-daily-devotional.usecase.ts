@@ -1,14 +1,12 @@
-import { DevotionalRepository } from '../../../domain/devotional/devotional.repository';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { WhatsappService } from '../../../infrastructure/whatsapp/whatsapp.service';
 import { ExtractDevotionalTextUseCase } from './extract-devotional-text.usecase';
-import * as fs from 'fs';
-import * as path from 'path';
-import { HttpService } from '@nestjs/axios';
+import { DevotionalRepository } from '../../../domain/devotional/devotional.repository';
 
 @Injectable()
-export class SendDailyDevotionalUseCase {
-  private readonly logger = new Logger(SendDailyDevotionalUseCase.name);
+export class TargetSendDailyDevotionalUseCase {
+  private readonly logger = new Logger(TargetSendDailyDevotionalUseCase.name);
 
   constructor(
     @Inject('DevotionalRepository')
@@ -31,23 +29,8 @@ export class SendDailyDevotionalUseCase {
       imageBuffer = await this.downloadImageBuffer(devotional.imagePath);
       const baseCap = await this.extractDevotional.execute(imageBuffer);
 
-      /*
-				 todo::-> get the whatsapp groups from api or firebase database as a list
-				  do not rely on the static representation of the whatsapp group id,
-				  get them dynamically from the api or database
-
-				  e.g const whatsAppGroupIds = await devotionalRepo.getAllWhatsAppGroup();
-				 */
       const whatsAppGroupIds: Record<string, string> = {
         PERAZIM_1: process.env.PERAZIM_1_WHATSAPP_GROUP!,
-        PERAZIM_2: process.env.PERAZIM_2_WHATSAPP_GROUP!,
-        TCC_LEADERS: process.env.TCC_LEADERS_WHATSAPP_GROUP!,
-        TCC_OLOGUNERU: process.env.TCC_OLOGUNERU_WHATSAPP_GROUP!,
-        PROFESSIONALS: process.env.PROFESSIONALS_WHATSAPP_GROUP!,
-        WAMI_ORDAINED_MINISTER:
-          process.env.WAMI_ORDAINED_MINISTER_WHATSAPP_GROUP!,
-        TRIUMPHANT_NATION_TN: process.env.TRIUMPHANT_NATION_TN_WHATSAPP_GROUP!,
-        TRIUMPHANT_NATION_UK: process.env.TRIUMPHANT_NATION_UK_WHATSAPP_GROUP!,
       };
 
       //Run a loop on the group ids
@@ -87,21 +70,6 @@ export class SendDailyDevotionalUseCase {
     return Buffer.from(response.data);
   }
 
-  private async downloadByImagePath(url: string): Promise<string> {
-    const response = await this.httpService.axiosRef.get(url, {
-      responseType: 'arraybuffer',
-    });
-
-    const tempDir = path.join(process.cwd(), 'tmp');
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
-    const filePath = path.join(tempDir, `devotional-${Date.now()}.jpg`);
-
-    fs.writeFileSync(filePath, response.data);
-
-    return filePath;
-  }
-
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -111,31 +79,6 @@ export class SendDailyDevotionalUseCase {
       PERAZIM_1: [
         'Good morning Perazim family 🙏',
         'Grace and peace to you, Perazim family 🌅',
-      ],
-      PERAZIM_2: ['Blessed morning everyone 🌤️', 'Good morning dear family 🙏'],
-      TCC_LEADERS: [
-        'Good morning leaders 🙏',
-        'Grace-filled morning, leaders 🌅',
-      ],
-      TCC_OLOGUNERU: [
-        'Good morning church family 🙏',
-        'Blessed morning to us all 🌤️',
-      ],
-      PROFESSIONALS: [
-        'Good morning dear professionals 🙏',
-        'Wishing you a productive day ahead 🌅',
-      ],
-      WAMI_ORDAINED_MINISTER: [
-        'Good morning dear Ministers of God 🙏',
-        'Grace and peace to you 🌅',
-      ],
-      TRIUMPHANT_NATION_TN: [
-        'Good morning TRIUMPHANT NATION TNT family 🙏',
-        'Grace-filled morning, TRIUMPHANT NATION TN family 🌅',
-      ],
-      TRIUMPHANT_NATION_UK: [
-        'Good morning TRIUMPHANT NATION UK family 🙏',
-        'Grace-filled morning, TRIUMPHANT NATION UK family 🌅',
       ],
     };
 

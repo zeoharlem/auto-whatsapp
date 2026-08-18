@@ -13,7 +13,8 @@ export class ExtractDevotionalTextUseCase {
 
   async execute(imageBuffer: Buffer): Promise<string> {
     try {
-      const devotional = await this.devotionalAiPort.extractDailyDevotionFromImage(imageBuffer);
+      const devotional =
+        await this.devotionalAiPort.extractDailyDevotionFromImage(imageBuffer);
       this.logger.log(devotional, 'ExtractDevotionalTextUseCase.execute');
       return this.formatForWhatsapp(devotional);
     } catch (e) {
@@ -31,6 +32,9 @@ export class ExtractDevotionalTextUseCase {
       ${d.anchorScripture}
       
       ${d.contentBody}
+      
+      *Declare With Me:*  
+      ${d.declareWithMe}
       
       *To Do:*  
       ${d.todo}
@@ -68,4 +72,5 @@ export const DAILY_DEVOTIONAL: DevotionalModel = {
     'Holy Spirit, help me to be a better person. Help me to build and develop the Right and godly character always in the name of Jesus Christ.',
   furtherReading: 'Matthew 5:16, 1 Timothy 4:12',
   bibleInOneYear: '2Kings 4-5, John 4:1-30',
+  declareWithMe: "“My mind is being renewed by God's Word. I think thoughts of faith, victory and purpose.”",
 };

@@ -35,6 +35,7 @@ export class GeminiService implements DevotionalAiPort {
             toPray: { type: SchemaType.STRING },
             furtherReading: { type: SchemaType.STRING },
             bibleInOneYear: { type: SchemaType.STRING },
+            declareWithMe: { type: SchemaType.STRING },
           },
           required: [
             'date',
@@ -45,6 +46,7 @@ export class GeminiService implements DevotionalAiPort {
             'toPray',
             'furtherReading',
             'bibleInOneYear',
+            'declareWithMe',
           ],
         },
       },
@@ -54,7 +56,7 @@ export class GeminiService implements DevotionalAiPort {
 
     const prompt = `
       Extract the text from this devotional image and return it as a JSON object.
-      Include these fields: date, topic, anchorScripture, contentBody, todo, toPray, furtherReading, and bibleInOneYear.
+      Include these fields: date, topic, anchorScripture, contentBody, todo, toPray, furtherReading, declareWithMe and bibleInOneYear.
       Rules:
       - Do NOT add explanations
       - Do NOT wrap in markdown
