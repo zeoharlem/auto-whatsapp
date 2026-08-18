@@ -59,7 +59,7 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
     const base64Image = image.toString('base64');
     const prompt = `
       Extract the text from this devotional image and return it as a JSON object.
-      Include these fields: date, topic, anchorScripture, contentBody, todo, toPray, furtherReading, and bibleInOneYear.
+      Include these fields: date, topic, anchorScripture, contentBody, todo, toPray, furtherReading, declareWithMe and bibleInOneYear.
       Rules:
       - Do NOT add explanations
       - Do NOT wrap in markdown
@@ -87,6 +87,7 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
               toPray: { type: 'string' },
               furtherReading: { type: 'string' },
               bibleInOneYear: { type: 'string' },
+              declareWithMe: { type: 'string' },
             },
             required: [
               'date',
@@ -97,6 +98,7 @@ export class OpenAiDevotionalAdapter implements DevotionalAiPort {
               'toPray',
               'furtherReading',
               'bibleInOneYear',
+              'declareWithMe',
             ],
           },
         },

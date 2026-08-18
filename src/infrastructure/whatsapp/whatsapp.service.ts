@@ -56,9 +56,9 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
     });
 
     /*this.client.on('disconnected', (reason) => {
-      this.ready = false;
-      this.logger.warn(`WhatsApp disconnected: ${reason}`);
-    });*/
+		  this.ready = false;
+		  this.logger.warn(`WhatsApp disconnected: ${reason}`);
+		});*/
 
     this.client.on('disconnected', async (reason) => {
       this.ready = false;
@@ -72,12 +72,12 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
 
     this.client.on('message_ack', (msg, ack) => {
       /*
-          ack values:
-          0: Error
-          1: Sent (One tick)
-          2: Delivered (Two ticks)
-          3: Read (Blue ticks)
-      */
+				 ack values:
+				 0: Error
+				 1: Sent (One tick)
+				 2: Delivered (Two ticks)
+				 3: Read (Blue ticks)
+			*/
       if (ack === 1) {
         console.log(
           `Confirmed: Message "${msg.body.substring(0, 20)}..." was sent!`,
@@ -200,5 +200,30 @@ export class WhatsappService implements OnModuleInit, OnApplicationShutdown {
 
     // Exit with 0 to avoid "crash" in logs
     if (signal) process.exit(0);
+  }
+
+  async getGroupsByName() {
+    const chats = await this.client.getChats();
+    const groups = chats.filter((chat) => chat.isGroup);
+
+    groups.forEach((group) => {
+      console.log({
+        name: group.name,
+        id: group.id._serialized,
+      });
+    });
+  }
+
+  async getGroupById(groupName: string) {
+    const chats = await this.client.getChats();
+    const group = chats.find(
+      (chat: { isGroup: boolean; name: string }) =>
+        chat.isGroup && chat.name === groupName,
+    );
+    if (!group) {
+      console.log('GroupChats', chats);
+    }
+
+    return !group ? null : group.id._serialized;
   }
 }
